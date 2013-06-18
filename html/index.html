@@ -1,9 +1,68 @@
 <!DOCTYPE HTML>
 <html lang="zh-CN">
 <head>
-  <meta charset="UTF-8">
-  <title></title>
+<meta charset="UTF-8" />
+<meta content="text/html; charset=utf-8" http-equiv="Content-Type" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+<meta name="viewport" content="initial-scale=1, minimum-scale=1, maximum-scale=1" />
+
+<!-- <link rel="apple-touch-icon" href="touch-icon-iphone.png" /> -->
+<!-- <link rel="apple-touch-icon" sizes="72x72" href="touch-icon-ipad.png" /> -->
+<!-- <link rel="apple-touch-icon" sizes="114x114" href="touch-icon-iphone-retina.png" /> -->
+<!-- <link rel="apple-touch-icon" sizes="144x144" href="touch-icon-ipad-retina.png" /> -->
+<!-- <link rel="apple-touch-startup-image" href="/startup.png" /> -->
+
+<title>lottery</title>
+<style type="text/css" media="all">
+html,
+body{
+  margin:0;
+  height:100%;
+  overflow:hidden;
+}
+
+.container{
+  position:relative;
+  width:100%;
+  height:100%;
+}
+
+.circle-box{
+  height:100%;
+  background:#333;
+}
+.circle{
+  background:#f60;
+  text-align:center;
+}
+.circle-50 .circle{
+  width:50px;
+  height:50px;
+  border-radius:50px;
+  line-height:50px;
+}
+
+.start{
+  padding:1em 3em;
+  position:absolute;
+  top:100px;
+  left:400px;
+}
+</style>
 </head>
 <body>
+
+<div class="container">
+  <div id="circle-box" class="circle-box circle-50">
+    <div class="circle">hello</div>
+  </div>
+
+  <button id="start" class="start" type="button">开始</button>
+</div>
+
+<script src="./../assets/seajs/sea-debug.js"
+        data-config="lottery/config.js"
+        data-main="lottery/main.js"></script>
 </body>
 </html>
