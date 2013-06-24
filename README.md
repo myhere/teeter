@@ -1,2 +1,2 @@
-# lottery
+# Teeter
 

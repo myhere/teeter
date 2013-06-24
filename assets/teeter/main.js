@@ -1,6 +1,7 @@
 define(function(require, exports, module) {
   var _ = require('underscore');
   var $ = require('zepto');
+  var utils = require('lottery/utils');
 
 
   var CircleBox = require('lottery/circle-box');
@@ -10,13 +11,13 @@ define(function(require, exports, module) {
 
   $(function() {
     $('#start').on('click', function(evt) {
+      data = utils.suffle(data);
       var box = new CircleBox();
       _.each(data, function(item) {
         var c = new Circle(item);
 
         box.add(c);
       });
-      alert(1);
     });
   });
 });
