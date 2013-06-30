@@ -1,23 +1,40 @@
 define(function(require, exports, module) {
   var _ = require('underscore');
   var $ = require('zepto');
-  var utils = require('lottery/utils');
 
+  var logger = require('teeter/logger');
+  var Ball = require('teeter/ball');
 
-  var CircleBox = require('lottery/circle-box');
-  var Circle = require('lottery/circle');
+  var ball = new Ball();
 
-  var data = require('data/data');
-
-  $(function() {
-    $('#start').on('click', function(evt) {
-      data = utils.suffle(data);
-      var box = new CircleBox();
-      _.each(data, function(item) {
-        var c = new Circle(item);
-
-        box.add(c);
-      });
+  var handleOrientation = function(evt) {
+    var keys = [
+      'alpha',
+      'beta',
+      'gamma',
+      'absolute'
+    ];
+    var angles = {};
+    _.each(keys, function(v) {
+      var val = evt[v];
+      if (_.isNumber(val)) {
+        angles[v] = Math.round(val);
+      } else {
+        angles[v] = val;
+      }
     });
-  });
+
+    ball.pull(angles);
+
+    // log 信息
+    // var result = '';
+    // _.each(keys, function(v) {
+    //   result += v + ' : ' + angles[v] + '<br />';
+    // });
+    // logger.log(result);
+  };
+
+  handleOrientation = _.throttle(handleOrientation, 200);
+
+  $(window).on('deviceorientation', handleOrientation);
 });
