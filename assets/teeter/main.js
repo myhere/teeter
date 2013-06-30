@@ -18,7 +18,7 @@ define(function(require, exports, module) {
     _.each(keys, function(v) {
       var val = evt[v];
       if (_.isNumber(val)) {
-        angles[v] = Math.round(val);
+        angles[v] = Math.round(val) || 0;
       } else {
         angles[v] = val;
       }

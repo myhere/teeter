@@ -9,7 +9,12 @@ define(function(require, exports, module) {
   Acceleration.prototype = {
     constructor: Acceleration,
 
-    get: function() {
+    getOnX: function() {
+      return this._value * Math.cos(this._theta);
+    },
+
+    getOnY: function() {
+      return this._value * Math.sin(this._theta);
     },
 
     set: function(value, theta) {
