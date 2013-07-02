@@ -5,7 +5,20 @@ define(function(require, exports, module) {
   var logger = require('teeter/logger');
   var Ball = require('teeter/ball');
 
-  var ball = new Ball();
+
+  var win = $(window);
+
+  var ball = new Ball(win.width(), win.height());
+  // 电脑调试用
+  if (logger.isDebug()) {
+    window.ball = ball;
+    ball.fakePull = function(beta, gamma) {
+      ball.pull({
+        beta: beta,
+        gamma: gamma
+      });
+    };
+  }
 
   var handleOrientation = function(evt) {
     var keys = [
@@ -25,6 +38,7 @@ define(function(require, exports, module) {
     });
 
     ball.pull(angles);
+    logger.log(angles);
 
     // log 信息
     // var result = '';
@@ -33,8 +47,22 @@ define(function(require, exports, module) {
     // });
     // logger.log(result);
   };
+  handleOrientation = _.throttle(handleOrientation, 40);
+  win.on('deviceorientation', handleOrientation);
 
-  handleOrientation = _.throttle(handleOrientation, 200);
 
-  $(window).on('deviceorientation', handleOrientation);
+  function setXY(argument) {
+    var winWidth = win.width();
+    var winHeight = win.height();
+    var body = $('body');
+    body.css({
+      height: winHeight,
+      width: winWidth
+    });
+
+    ball.setMaxXY(winWidth, winHeight);
+  }
+
+  setXY();
+  win.on('resize', setXY);
 });

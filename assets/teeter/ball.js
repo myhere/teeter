@@ -7,18 +7,17 @@ define(function(require, exports, module) {
   var Velocity = require('teeter/velocity');
   var Acceleration = require('teeter/acceleration');
 
-  function Ball() {
+  function Ball(maxX, maxY) {
     this._node = $('#ball');
 
     this._radius = 20;
 
-    // 当前坐标
-    this._x = 30;
-    this._y = 30;
+    // 球心坐标
+    this._x = 100;
+    this._y = 100;
 
-    var win = $(window);
-    this._maxY = win.height();
-    this._maxX = win.width();
+    this._maxY = maxY;
+    this._maxX = maxX;
 
     // 速度
     this._velocity = new Velocity(0, 0);
@@ -31,8 +30,8 @@ define(function(require, exports, module) {
     this._interval = 1000 / 25;
 
     // 单位时间
-    // 每一帧为一个单位时间, 用于计算球移动位置
-    this._unitTime = this._interval;
+    // 一个单位时间, 用于计算球移动位置
+    this._unitTime = this._interval * 2;
 
     this._init();
   }
@@ -41,7 +40,7 @@ define(function(require, exports, module) {
     constructor: Ball,
 
     _init: function() {
-      this._moveTo();
+      this._updateUI();
       this._show();
 
       this._run();
@@ -50,7 +49,7 @@ define(function(require, exports, module) {
     _run: function() {
       var run = _.bind(function() {
         this._calculatePosition();
-        this._moveTo();
+        this._updateUI();
 
         this._runner = setTimeout(run, this._interval);
       }, this);
@@ -58,6 +57,11 @@ define(function(require, exports, module) {
       this._runner = null;
 
       run();
+    },
+
+    setMaxXY: function(maxX, maxY) {
+      this._maxX = maxX;
+      this._maxY = maxY;
     },
 
     pull: function(angles) {
@@ -68,16 +72,12 @@ define(function(require, exports, module) {
       return this._radius;
     },
 
-    _moveTo: function() {
-      this._transformCoord({
-        x: this._x,
-        y: this._y
-      });
-
+    _updateUI: function() {
+      this._ensureValidPosition();
 
       this._node.css({
-        bottom: this._y + 'px',
-        left: this._x + 'px'
+        bottom: this._y - this._radius + 'px',
+        left: this._x - this._radius + 'px'
       });
     },
 
@@ -85,17 +85,24 @@ define(function(require, exports, module) {
       var velocityOnX = this._velocity.getOnX();
       var velocityOnY = this._velocity.getOnY();
 
-      this._velocity.accelerate(this._acceleration, this._interval / this._unitTime);
+      var t = this._interval / this._unitTime;
+      // 速度调整
+      this._velocity.accelerate(this._acceleration, t);
 
       var newVelocityOnX = this._velocity.getOnX();
       var newVelocityOnY = this._velocity.getOnY();
 
       // x, y 方向上看做匀加速直线运动
-      var displacementOnX = 0.5 * (velocityOnX + newVelocityOnX);
-      var displacementOnY = 0.5 * (velocityOnY + newVelocityOnY);
+      var displacementOnX = 0.5 * (velocityOnX + newVelocityOnX) * t;
+      var displacementOnY = 0.5 * (velocityOnY + newVelocityOnY) * t;
 
       this._x += displacementOnX;
       this._y += displacementOnY;
+
+      this._x = Math.round(this._x);
+      this._y = Math.round(this._y);
+
+      // logger.log('x: ' + this._x + ' y: ' + this._y);
     },
 
     _show: function() {
@@ -103,29 +110,35 @@ define(function(require, exports, module) {
     },
 
     /**
-     * 将球心坐标转换为球左下角坐标
+     * 确保球心坐标合法
      */
-    _transformCoord: function(coord) {
+    _ensureValidPosition: function() {
       var r = this._radius;
-      var x = Math.round(coord.x);
-      var y = Math.round(coord.y);
+      var x = Math.round(this._x);
+      var y = Math.round(this._y);
 
+      var collideSide;
       // 球心坐标规范
       if (x < r) {
         x = r;
+        collideSide = 'left';
       }
       if (x > this._maxX - r) {
         x = this._maxX - r;
+        collideSide = 'right';
       }
       if (y < r) {
         y = r;
+        collideSide = 'bottom';
       }
       if (y > this._maxY - r) {
         y = this._maxY - r;
+        collideSide = 'top';
       }
+      this._velocity.collide(collideSide);
 
-      this._x = x - r;
-      this._y = y - r;
+      this._x = x;
+      this._y = y;
     }
   };
 

@@ -4,6 +4,9 @@ define(function(require, exports, module) {
   function Acceleration(value, theta) {
     this._value = value;
     this._theta = theta;
+
+    // 加速度最大值
+    this._MAX_VALUE = 4;
   }
 
   Acceleration.prototype = {
@@ -15,6 +18,10 @@ define(function(require, exports, module) {
 
     getOnY: function() {
       return this._value * Math.sin(this._theta);
+    },
+
+    getTheta: function() {
+      return this._theta;
     },
 
     set: function(value, theta) {
@@ -40,18 +47,20 @@ gamma: 绕 y 旋转
       var value,
           theta;
 
-      var beta = angles.beta,
-          gamma = angles.gamma;
+      var beta = angles.beta || 0,
+          gamma = angles.gamma || 0;
+
+      // 与水平面夹角
+      var omega;
 
       if (gamma === 0) {
-        value = 1;
         if (beta > 0) {
           theta = 1.5 * Math.PI;
         } else {
           theta = 0.5 * Math.PI;
         }
+        omega = beta / 180 * Math.PI;
       } else {
-        value = 1;
         var ratio = beta / gamma;
         var atan = Math.atan(ratio);
         if (ratio === 0) {
@@ -79,6 +88,19 @@ gamma: 绕 y 旋转
             theta = Math.PI - atan;
           }
         }
+
+        beta = Math.abs(beta);
+        gamma = Math.abs(gamma);
+        var y = 1 - Math.sin(beta) * Math.sin(gamma);
+        var x = Math.sqrt((1 - Math.cos(beta)) * (1 - Math.cos(beta)) + (1 - Math.cos(gamma)) * (1 - Math.cos(gamma)));
+        omega = Math.atan(y / x);
+      }
+
+      omega = Math.abs(omega);
+      if (omega == 0) {
+        value = 0;
+      } else {
+        value = this._MAX_VALUE * Math.sin(omega);
       }
 
       this._value = value;
@@ -89,6 +111,7 @@ gamma: 绕 y 旋转
       //            'gamma: ' + gamma + '<br />' +
       //            'theta: ' + theta / Math.PI * 180 + '<br />';
       // logger.log(html);
+      logger.log('acceleration: theta:' + (theta / Math.PI * 180) + ' value: ' + value);
     }
   };
 
